@@ -48,6 +48,7 @@ export const auth = betterAuth({
   // Email verification part by nodemailer
   emailVerification: {
     sendOnSignUp: true,
+    autoSignInAfterVerification: true, //after sign up automatic sign in app
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
         const verifationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
@@ -131,4 +132,18 @@ export const auth = betterAuth({
       }
     },
   },
+
+  // sign up by google
+  socialProviders: {
+        google: { 
+            // prompt: "select_account", // If you want to always ask the user to select an account
+
+            // To always get a refresh token
+            accessType: "offline", 
+            prompt: "select_account consent",
+
+            clientId: process.env.GOOGLE_CLIENT_ID as string, 
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
+        }, 
+    },
 });
