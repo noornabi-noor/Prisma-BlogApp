@@ -22,6 +22,25 @@ const createPost = async (req: Request, res: Response) => {
   }
 };
 
+const getAllPost = async(req: Request, res: Response) => {
+  try {
+
+    const {search} = req.query;
+    const searchType = typeof search === 'string' ? search : undefined;
+
+    const result = await postServices.getAllPost({search: searchType});
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      message: error instanceof Error ? error.message : "Cannot find out all post",
+    });
+  }
+  
+}
+
 export const postController = {
   createPost,
+  getAllPost,
 };
