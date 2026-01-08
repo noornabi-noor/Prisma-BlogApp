@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { postServices } from "./posts.services";
+import { PostStatus } from "../../../generated/prisma/enums";
 
 const createPost = async (req: Request, res: Response) => {
   try {
@@ -22,24 +23,45 @@ const createPost = async (req: Request, res: Response) => {
   }
 };
 
-const getAllPost = async(req: Request, res: Response) => {
+const getAllPost = async (req: Request, res: Response) => {
   try {
 
-    const {search} = req.query;
-    const searchType = typeof search === 'string' ? search : undefined;
+    // for search any part
+    const { search } = req.query;
+    const searchType = typeof search === "string" ? search : undefined;
 
+    // search with tags name
     const tags = req.query.tags ? (req.query.tags as string).split(",") : [];
 
-    // true or false
-    const isFeatured = req.query.isFeatured ? (req.query.isFeatured) === 'true' ? true : (req.query.isFeatured) === 'false' ? false : undefined : undefined;
+    // true or false (isFeatured)
+    const isFeatured = req.query.isFeatured
+      ? req.query.isFeatured === "true"
+        ? true
+        : req.query.isFeatured === "false"
+        ? false
+        : undefined
+      : undefined;
 
-    const result = await postServices.getAllPost({search: searchType, tags, isFeatured});
+      // check status
+      const status = req.query.status as PostStatus | undefined;
+
+      // check by authorId
+      const authorId = req.query.authorId as string | undefined
+
+    const result = await postServices.getAllPost({
+      search: searchType,
+      tags,
+      isFeatured,
+      status,
+      authorId
+    });
 
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
     res.status(400).json({
-      message: error instanceof Error ? error.message : "Cannot find out all post",
+      message:
+        error instanceof Error ? error.message : "Cannot find out all post",
     });
   }
 };

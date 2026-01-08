@@ -1,5 +1,5 @@
 import { title } from "node:process";
-import { Post } from "../../../generated/prisma/client";
+import { Post, PostStatus } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const createPost = async (
@@ -19,8 +19,9 @@ const getAllPost = async (payload: {
   search: string | undefined;
   tags: string[] | [];
   isFeatured?: boolean | undefined;
+  status: PostStatus | undefined;
+  authorId: string | undefined
 }) => {
-
   const where: any = {};
 
   if (payload.search) {
@@ -51,8 +52,16 @@ const getAllPost = async (payload: {
     };
   }
 
-  if(typeof payload.isFeatured === 'boolean'){
+  if (typeof payload.isFeatured === "boolean") {
     where.isFeatured = payload.isFeatured;
+  }
+
+  if(payload.status){
+    where.status = payload.status;
+  }
+
+  if(payload.authorId){
+    where.authorId = payload.authorId;
   }
 
   const result = await prisma.post.findMany({
