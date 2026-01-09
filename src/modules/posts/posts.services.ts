@@ -20,7 +20,12 @@ const getAllPost = async (payload: {
   tags: string[] | [];
   isFeatured?: boolean | undefined;
   status: PostStatus | undefined;
-  authorId: string | undefined
+  authorId: string | undefined;
+  page: number;
+  limit: number;
+  skip: number;
+  sortBy: string;
+  sortOrder: string;
 }) => {
   const where: any = {};
 
@@ -56,19 +61,36 @@ const getAllPost = async (payload: {
     where.isFeatured = payload.isFeatured;
   }
 
-  if(payload.status){
+  if (payload.status) {
     where.status = payload.status;
   }
 
-  if(payload.authorId){
+  if (payload.authorId) {
     where.authorId = payload.authorId;
   }
 
   const result = await prisma.post.findMany({
+    take: payload.limit,
+    skip: payload.skip,
+    orderBy: {
+      [payload.sortBy]: payload.sortOrder,
+    },
     where: where,
   });
 
-  return result;
+  const total = await prisma.post.count({
+    where: where,
+  });
+
+  return {
+    data: result,
+    pagination: {
+      total,
+      page: payload.page,
+      limit: payload.limit,
+      totalPages: Math.ceil(total / payload.limit),
+    },
+  };
 };
 
 export const postServices = {
