@@ -1,5 +1,9 @@
 import { title } from "node:process";
-import { Post, PostStatus } from "../../../generated/prisma/client";
+import {
+  CommentStatus,
+  Post,
+  PostStatus,
+} from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const createPost = async (
@@ -69,11 +73,19 @@ const getAllPost = async (payload: {
     where.authorId = payload.authorId;
   }
 
+  // pagination and sorting part
   const result = await prisma.post.findMany({
     take: payload.limit,
     skip: payload.skip,
     orderBy: {
       [payload.sortBy]: payload.sortOrder,
+    },
+    include: { // comment count now show
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
     },
     where: where,
   });
@@ -108,6 +120,47 @@ const getPostById = async (id: string) => {
     const postData = await tx.post.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        //  comments: true, // it shows all comments but not understand which is parent each other
+
+        comments: {
+          where: {
+            parentId: null,
+            status: CommentStatus.APPROVED, // only approved comment show
+          },
+          orderBy: {
+            // last comment show in front
+            createdAt: "desc",
+          },
+          include: {
+            replies: {
+              where: {
+                status: CommentStatus.APPROVED,
+              },
+              orderBy: {
+                // replies shows first comes first out
+                createdAt: "asc",
+              },
+              include: {
+                replies: {
+                  where: {
+                    status: CommentStatus.APPROVED,
+                  },
+                  orderBy: {
+                    createdAt: "asc",
+                  },
+                },
+              },
+            },
+          },
+        },
+        _count: {
+          // total comments count show
+          select: {
+            comments: true,
+          },
+        },
       },
     });
     return postData;
