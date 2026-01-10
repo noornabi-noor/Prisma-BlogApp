@@ -7,7 +7,7 @@ const createComment = async (req: Request, res: Response) => {
     req.body.authorId = user?.id; // automatically userId set into authorId
 
     const result = await commentServices.createComment(req.body);
-    res.status(200).json(result);
+    res.status(201).json(result);
   } catch (error) {
     res.status(400).json({
       message:
@@ -16,6 +16,36 @@ const createComment = async (req: Request, res: Response) => {
   }
 };
 
+const getCommentById = async (req: Request, res: Response) => {
+  try {
+    const {commentId} = req.params;
+
+    const result = await commentServices.getCommentById(commentId as string);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({
+      message:
+        error instanceof Error ? error.message : "Comment not found",
+    });
+  }
+};
+
+const getCommentByAuthorId = async(req: Request, res: Response) => {
+  try {
+    const {authorId} = req.params;
+
+    const result = await commentServices.getCommentByAuthorId(authorId as string);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({
+      message:
+        error instanceof Error ? error.message : "Author not found",
+    });
+  }
+}
+
 export const commentController = {
   createComment,
+  getCommentById,
+  getCommentByAuthorId,
 };

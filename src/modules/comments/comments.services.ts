@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { title } from "node:process";
 
 const createComment = async (payload: {
   content: string;
@@ -7,7 +8,7 @@ const createComment = async (payload: {
   parentId?: string;
 }) => {
   // check postId correct or not
-  await prisma.comment.findUniqueOrThrow({
+  await prisma.post.findUniqueOrThrow({
     where: {
       id: payload.postId,
     },
@@ -15,10 +16,11 @@ const createComment = async (payload: {
 
   // check parentId exist or not
   if (payload.parentId) {
-    await prisma.comment.findUniqueOrThrow({ // findUniqueOrThrow it is check and throw error if not exist
-      where:{
+    await prisma.comment.findUniqueOrThrow({
+      // findUniqueOrThrow it is check and throw error if not exist
+      where: {
         id: payload.parentId,
-      }
+      },
     });
   }
 
@@ -27,6 +29,46 @@ const createComment = async (payload: {
   });
 };
 
+const getCommentById = async (id: string) => {
+  const result = await prisma.comment.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      post: {
+        select: {
+          id: true,
+          title: true,
+          views: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
+const getCommentByAuthorId = async (authorId: string) => {
+  return await prisma.comment.findMany({
+    where: {
+      authorId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      post: {
+        select: {
+          id: true,
+          title: true,
+        },
+      },
+    },
+  });
+};
+
 export const commentServices = {
   createComment,
+  getCommentById,
+  getCommentByAuthorId,
 };
