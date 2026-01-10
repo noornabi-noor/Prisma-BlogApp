@@ -68,52 +68,78 @@ const getCommentByAuthorId = async (authorId: string) => {
   });
 };
 
-const commentDelete = async (authorId:string, commentId: string) => {
+const commentDelete = async (authorId: string, commentId: string) => {
   const commentData = await prisma.comment.findFirst({
-    where:{
+    where: {
       id: commentId,
       authorId,
     },
-    select:{
-      id: true
-    }
+    select: {
+      id: true,
+    },
   });
 
-  if(!commentData){
+  if (!commentData) {
     throw new Error("Your provide input is invalid!");
-  };
+  }
 
   return await prisma.comment.delete({
-    where:{
-      id: commentData.id
-    }
-  })
+    where: {
+      id: commentData.id,
+    },
+  });
 };
 
-
-const updateComment = async(commentId: string, data:{content?: string, status?: CommentStatus}, authorId: string) => {
+const updateComment = async (
+  commentId: string,
+  data: { content?: string; status?: CommentStatus },
+  authorId: string
+) => {
   const commentData = await prisma.comment.findFirst({
-    where:{
+    where: {
       id: commentId,
       authorId,
     },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!commentData) {
+    throw new Error("Your provide input is invalid!");
+  }
+
+  return await prisma.comment.update({
+    where: {
+      id: commentId,
+      authorId,
+    },
+    data,
+  });
+};
+
+const moderateComment = async (id: string, data:{status: CommentStatus}) => {
+  const updatedData = await prisma.comment.findUniqueOrThrow({
+    where:{
+      id
+    },
     select:{
-      id: true
+      id: true,
+      status: true
     }
   });
 
-  if(!commentData){
-    throw new Error("Your provide input is invalid!");
+  if(updatedData.status === data.status){
+    throw new Error(`Your data ${data.status} already up to date!!`);
   };
 
   return await prisma.comment.update({
     where:{
-      id: commentId,
-      authorId
+      id,
     },
-    data
-  })
-}
+    data: { status: data.status } 
+  });
+};
 
 export const commentServices = {
   createComment,
@@ -121,5 +147,5 @@ export const commentServices = {
   getCommentByAuthorId,
   commentDelete,
   updateComment,
-
+  moderateComment
 };

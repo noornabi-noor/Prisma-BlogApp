@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { commentServices } from "./comments.services";
+import { CommentStatus } from "../../../generated/prisma/enums";
 
 const createComment = async (req: Request, res: Response) => {
   try {
@@ -76,10 +77,30 @@ const updateComment = async(req: Request, res: Response) => {
   }
 };
 
+const moderateComment = async(req: Request, res: Response) => {
+  try {
+
+    const {commentId} = req.params;
+    const { status } = req.body;
+
+
+    const result = await commentServices.moderateComment(commentId as string, { status: status as CommentStatus });
+    res.status(201).json(result);
+  } catch (error) {
+    const errorMessage = (error instanceof Error) ? error.message:("Comment update failed!")
+    res.status(400).json({
+      error: errorMessage,
+      details: error
+    });
+  }
+};
+
+
 export const commentController = {
   createComment,
   getCommentById,
   getCommentByAuthorId,
   commentDelete,
   updateComment,
+  moderateComment
 };
