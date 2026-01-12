@@ -80,7 +80,8 @@ const getAllPost = async (payload: {
     orderBy: {
       [payload.sortBy]: payload.sortOrder,
     },
-    include: { // comment count now show
+    include: {
+      // comment count now show
       _count: {
         select: {
           comments: true,
@@ -109,7 +110,7 @@ const getPostById = async (id: string) => {
   const result = await prisma.$transaction(async (tx) => {
     await tx.post.update({
       where: {
-        id: id,
+        id,
       },
       data: {
         views: {
@@ -169,8 +170,40 @@ const getPostById = async (id: string) => {
   return result;
 };
 
+
+const getMyPost = async (authorId: string) => {
+  const result = await prisma.post.findMany({
+    where: {
+      authorId,
+      status: PostStatus.PUBLISHED,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      _count: {
+        select: { comments: true },
+      },
+    },
+  });
+
+  const totalPost = await prisma.post.aggregate({
+    _count: { id: true },
+    where: {
+      authorId,
+      status: PostStatus.PUBLISHED,
+    },
+  });
+
+  return {
+    data: result,
+    totalPost,
+  };
+};
+
 export const postServices = {
   createPost,
   getAllPost,
   getPostById,
+  getMyPost,
 };
