@@ -203,7 +203,8 @@ const getMyPost = async (authorId: string) => {
 const updateMyPost = async (
   postId: string,
   data: Partial<Post>,
-  authorId: string
+  authorId: string,
+  isAdmin: boolean
 ) => {
   const postData = await prisma.post.findUnique({
     where: {
@@ -215,8 +216,16 @@ const updateMyPost = async (
     },
   });
 
-  if (postData?.authorId !== authorId) {
+  if (!postData) {
+    throw new Error("Post not found");
+  }
+
+  if (!isAdmin && (postData?.authorId !== authorId) ) {
     throw new Error("You are not author of this post!!");
+  }
+
+  if(!isAdmin){
+    delete data.isFeatured;
   }
 
   const result = await prisma.post.update({
