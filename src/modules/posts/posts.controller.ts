@@ -98,9 +98,24 @@ const getMyPost = async(req : Request, res: Response) => {
   try {
     const user = req.user;
 
-    console.log(user);
-
     const result = await postServices.getMyPost(user?.id as string);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      message:
+        error instanceof Error ? error.message : "Cannot find post by User Id",
+    });
+  }
+};
+
+const updateMyPost = async(req : Request, res: Response) => {
+  try {
+    const user = req.user;
+
+    const {postId} = req.params;
+
+    const result = await postServices.updateMyPost(postId as string, req.body, user?.id as string);
     res.status(200).json(result);
   } catch (error) {
     console.error(error);
@@ -116,4 +131,5 @@ export const postController = {
   getAllPost,
   getPostById,
   getMyPost,
+  updateMyPost,
 };

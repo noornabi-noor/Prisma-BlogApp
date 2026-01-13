@@ -83,7 +83,6 @@ const moderateComment = async(req: Request, res: Response) => {
     const {commentId} = req.params;
     const { status } = req.body;
 
-
     const result = await commentServices.moderateComment(commentId as string, { status: status as CommentStatus });
     res.status(201).json(result);
   } catch (error) {
