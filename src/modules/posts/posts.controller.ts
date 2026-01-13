@@ -148,6 +148,21 @@ const deleteMyPost = async(req : Request, res: Response) => {
   }
 };
 
+const getStats = async(req : Request, res: Response) => {
+  try {
+    
+
+    const result = await postServices.getStats();
+    res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({
+      message:
+        error instanceof Error ? error.message : "Stats fatched failed!!",
+    });
+  }
+};
+
 export const postController = {
   createPost,
   getAllPost,
@@ -155,5 +170,5 @@ export const postController = {
   getMyPost,
   updateMyPost,
   deleteMyPost,
-
+  getStats
 };
