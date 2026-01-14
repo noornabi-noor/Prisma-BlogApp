@@ -68,6 +68,7 @@ const getCommentByAuthorId = async (authorId: string) => {
   });
 };
 
+// user and admin can delete comment
 const commentDelete = async (authorId: string, commentId: string) => {
   const commentData = await prisma.comment.findFirst({
     where: {
@@ -90,6 +91,7 @@ const commentDelete = async (authorId: string, commentId: string) => {
   });
 };
 
+// user and admin can update comment
 const updateComment = async (
   commentId: string,
   data: { content?: string; status?: CommentStatus },
@@ -118,6 +120,7 @@ const updateComment = async (
   });
 };
 
+// user and admin can update data 
 const moderateComment = async (id: string, data:{status: CommentStatus}) => {
   const updatedData = await prisma.comment.findUniqueOrThrow({
     where:{
@@ -140,6 +143,7 @@ const moderateComment = async (id: string, data:{status: CommentStatus}) => {
     data: { status: data.status } 
   });
 };
+
 
 export const commentServices = {
   createComment,
