@@ -107,7 +107,7 @@ const getMyPost = async(req : Request, res: Response) => {
   }
 };
 
-const updateMyPost = async(req : Request, res: Response) => {
+const updateMyPost = async(req : Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
 
@@ -118,11 +118,7 @@ const updateMyPost = async(req : Request, res: Response) => {
     const result = await postServices.updateMyPost(postId as string, req.body, user?.id as string, isAdmin);
     res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-    res.status(400).json({
-      message:
-        error instanceof Error ? error.message : "Cannot find post by User Id",
-    });
+    next(error);
   }
 };
 
