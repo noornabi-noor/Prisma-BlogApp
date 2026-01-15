@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { postServices } from "./posts.services";
 import { PostStatus } from "../../../generated/prisma/enums";
 import paginationSortingHelper from "../../helpers/paginationSortingHelper";
 import { UserRoles } from "../../middleware/auth";
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // take user data and check authorized user
     const user = req.user;
@@ -18,10 +18,7 @@ const createPost = async (req: Request, res: Response) => {
 
     res.status(201).json(result);
   } catch (error) {
-    console.error(error);
-    res.status(400).json({
-      message: error instanceof Error ? error.message : "Post creation failed",
-    });
+    next(error);
   }
 };
 
@@ -150,7 +147,6 @@ const deleteMyPost = async(req : Request, res: Response) => {
 
 const getStats = async(req : Request, res: Response) => {
   try {
-    
 
     const result = await postServices.getStats();
     res.status(200).json(result);
