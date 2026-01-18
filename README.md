@@ -13,6 +13,10 @@ A simple role-based blog platform using Prisma ORM and PostgreSQL.
 - User: Manage own posts, comment
 - Admin: Manage all posts, moderate comments
 
+<div align="center">
+  <img src="https://i.ibb.co.com/PzJKrX1m/blog.png" alt="coding" width="400" />
+</div>
+
 ## Architecture
 Client → API → Auth → Prisma → PostgreSQL
 
